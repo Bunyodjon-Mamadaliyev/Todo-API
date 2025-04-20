@@ -3,7 +3,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.contrib.auth import get_user_model
 from .models import Task
 from .serializers import TaskSerializer
-from common.permissions import IsTaskOwnerOrAssigned, IsAuthenticatedForListing
+from common.permissions import IsTaskOwnerOrAssigned
 
 User = get_user_model()
 
@@ -22,6 +22,7 @@ class TaskRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
     permission_classes = [IsTaskOwnerOrAssigned]
+
 
 class TaskByStatusView(generics.ListAPIView):
     serializer_class = TaskSerializer

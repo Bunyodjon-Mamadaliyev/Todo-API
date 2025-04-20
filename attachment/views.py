@@ -1,11 +1,15 @@
 from rest_framework import generics, permissions
 from .models import Attachment
-from .serializers import AttachmentSerializer
+from .serializers import AttachmentSerializerV1, AttachmentSerializerV2
 from .permissions import IsTaskAssigneeOrOwner
 
 class TaskAttachmentListCreateView(generics.ListCreateAPIView):
-    serializer_class = AttachmentSerializer
     permission_classes = [permissions.IsAuthenticated, IsTaskAssigneeOrOwner]
+
+    def get_serializer_class(self):
+        if self.request.version == "1":
+            return AttachmentSerializerV1
+        return AttachmentSerializerV2
 
     def get_queryset(self):
         task_id = self.kwargs['id']
@@ -18,5 +22,10 @@ class TaskAttachmentListCreateView(generics.ListCreateAPIView):
 
 class AttachmentRetrieveDestroyView(generics.RetrieveDestroyAPIView):
     queryset = Attachment.objects.all()
-    serializer_class = AttachmentSerializer
     permission_classes = [permissions.IsAuthenticated]
+    lookup_field = "pk"
+
+    def get_serializer_class(self):
+        if self.request.version == "1":
+            return AttachmentSerializerV1
+        return AttachmentSerializerV2

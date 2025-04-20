@@ -1,12 +1,16 @@
 from rest_framework import generics, permissions
 from .models import SubTask
 from task.models import Task
-from .serializers import SubTaskSerializer
+from .serializers import SubTaskSerializerV1, SubTaskSerializerV2
 from .permissions import IsTaskOwnerOrAssigned, IsTaskOwner
 
 class SubTaskListCreateView(generics.ListCreateAPIView):
-    serializer_class = SubTaskSerializer
     permission_classes = [permissions.IsAuthenticated, IsTaskOwnerOrAssigned]
+
+    def get_serializer_class(self):
+        if self.request.version == "1":
+            return SubTaskSerializerV1
+        return SubTaskSerializerV2
 
     def get_parent_task(self):
         task_id = self.kwargs['task_id']
@@ -22,8 +26,13 @@ class SubTaskListCreateView(generics.ListCreateAPIView):
 
 class SubTaskRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = SubTask.objects.all()
-    serializer_class = SubTaskSerializer
     permission_classes = [permissions.IsAuthenticated, IsTaskOwnerOrAssigned, IsTaskOwner]
+    lookup_field = "pk"
+
+    def get_serializer_class(self):
+        if self.request.version == "1":
+            return SubTaskSerializerV1
+        return SubTaskSerializerV2
 
     def get_object(self):
         subtask = super().get_object()

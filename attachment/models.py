@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 class Attachment(models.Model):
-    task = models.ForeignKey('task.Task', on_delete=models.CASCADE)
+    task = models.ForeignKey('task.Task', on_delete=models.CASCADE, related_name='attachments')
     file = models.FileField(upload_to='attachments/')
     filename = models.CharField(max_length=255)
     file_type = models.CharField(max_length=100)

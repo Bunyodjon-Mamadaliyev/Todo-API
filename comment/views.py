@@ -1,12 +1,16 @@
 from rest_framework import generics
 from .models import Comment
 from task.models import Task
-from .serializers import CommentSerializer
+from .serializers import CommentSerializerV1, CommentSerializerV2
 from .permissions import IsTaskParticipant, IsCommentOwnerOrAdmin
 
 class CommentListCreateView(generics.ListCreateAPIView):
-    serializer_class = CommentSerializer
     permission_classes = [IsTaskParticipant]
+
+    def get_serializer_class(self):
+        if self.request.version == "1":
+            return CommentSerializerV1
+        return CommentSerializerV2
 
     def get_parent_task(self):
         task_id = self.kwargs['task_id']
@@ -22,8 +26,13 @@ class CommentListCreateView(generics.ListCreateAPIView):
 
 class CommentRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Comment.objects.all()
-    serializer_class = CommentSerializer
     permission_classes = [IsTaskParticipant, IsCommentOwnerOrAdmin]
+    lookup_field = "pk"
+
+    def get_serializer_class(self):
+        if self.request.version == "1":
+            return CommentSerializerV1
+        return CommentSerializerV2
 
     def get_object(self):
         comment = super().get_object()

@@ -1,12 +1,22 @@
 from rest_framework import generics
 from .models import Category
-from .serializers import CategorySerializer
+from .serializers import CategorySerializerV1, CategorySerializerV2
 
 
 class CategoryListCreateView(generics.ListCreateAPIView):
     queryset = Category.objects.all()
-    serializer_class = CategorySerializer
+
+    def get_serializer_class(self):
+        if self.request.version == "1":
+            return CategorySerializerV1
+        return CategorySerializerV2
 
 class CategoryRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Category.objects.all()
-    serializer_class = CategorySerializer
+    lookup_field = "pk"
+
+    def get_serializer_class(self):
+        if self.request.version == "1":
+            return CategorySerializerV1
+        return CategorySerializerV2
+

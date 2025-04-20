@@ -1,12 +1,13 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import Task
-from category.serializers import CategorySerializer
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'email']
+        ref_name = 'TaskUserSerializer'
 
 class TaskSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source='category.name', read_only=True)
@@ -18,13 +19,12 @@ class TaskSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Task
-        fields = [
-            'id', 'title', 'description', 'priority', 'status',
-            'category', 'category_name', 'created_by', 'assigned_users',
-            'deadline', 'created_at', 'updated_at', 'is_recurring',
-            'recurrence_pattern', 'estimated_hours', 'actual_hours',
-            'subtasks_count', 'comments_count', 'attachments_count'
-        ]
+        fields = ['id', 'title', 'description', 'priority', 'status',
+                    'category', 'category_name', 'created_by', 'assigned_users',
+                    'deadline', 'created_at', 'updated_at', 'is_recurring',
+                    'recurrence_pattern', 'estimated_hours', 'actual_hours',
+                    'subtasks_count', 'comments_count', 'attachments_count'
+                ]
         read_only_fields = [
             'id', 'created_at', 'updated_at', 'created_by',
             'subtasks_count', 'comments_count', 'attachments_count'
