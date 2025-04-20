@@ -7,14 +7,14 @@ from .models import UserProfile
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ['department', 'position', 'phone']
+        fields = ['department', 'position', 'phone', 'profile_picture', 'role']
 
 class UserSerializer(serializers.ModelSerializer):
-    profile = UserProfileSerializer()
+    userprofile = UserProfileSerializer()
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'profile']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'userprofile']
 
     def update(self, instance, validated_data):
         profile_data = validated_data.pop('profile', {})
@@ -54,18 +54,22 @@ class RegisterSerializer(serializers.ModelSerializer):
             first_name=validated_data.get('first_name', ''),
             last_name=validated_data.get('last_name', '')
         )
-        UserProfile.objects.create(user=user, **profile_data)
-        return user
-    def to_representation(self, instance):
-        return UserSerializer(instance).data
 
+        user_profile = user.userprofile
+        if user_profile:
+            user_profile.department = profile_data['department']
+            user_profile.position = profile_data['position']
+            user_profile.phone = profile_data['phone']
+            user_profile.save()
+
+        return user
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
         token['username'] = user.username
-        token['role'] = user.profile.role
+        token['role'] = user.userprofile.role
         return token
 
 
